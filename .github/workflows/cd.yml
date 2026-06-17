@@ -33,14 +33,14 @@ jobs:
         run: |
           docker build --platform linux/amd64 \
             -t ${{ steps.login-ecr.outputs.registry }}/${{ env.PROJECT_NAME }}-backend-despachos:latest \
-            ./backend/despacho-service
+            ./backend/back-despacho-service
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.PROJECT_NAME }}-backend-despachos:latest
 
       - name: Build y push del backend ventas
         run: |
           docker build --platform linux/amd64 \
             -t ${{ steps.login-ecr.outputs.registry }}/${{ env.PROJECT_NAME }}-backend-ventas:latest \
-            ./backend/venta-service
+            ./backend/back-venta-service
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.PROJECT_NAME }}-backend-ventas:latest
 
       - name: Build y push del frontend
