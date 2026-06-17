@@ -34,14 +34,14 @@ jobs:
         run: |
           docker build --platform linux/amd64 \
             -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.PROJECT_NAME }}-backend-despachos:latest \
-            ./backend/despacho-service
+            ./backend/back-despacho-service
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.PROJECT_NAME }}-backend-despachos:latest
 
       - name: Build y push del backend ventas
         run: |
           docker build --platform linux/amd64 \
             -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.PROJECT_NAME }}-backend-ventas:latest \
-            ./backend/venta-service
+            ./backend/back-venta-service
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.PROJECT_NAME }}-backend-ventas:latest
 
       - name: Build y push del frontend
