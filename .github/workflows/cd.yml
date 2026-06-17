@@ -8,7 +8,6 @@ on:
 env:
   AWS_REGION: us-east-1
   PROJECT_NAME: despacho-project
-  SERVICE: app
 
 jobs:
   deploy:
@@ -23,7 +22,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }} # Obligatorio si usas credenciales temporales/Academy
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login en ECR
@@ -33,27 +32,53 @@ jobs:
       - name: Build y push del backend despachos
         run: |
           docker build --platform linux/amd64 \
+<<<<<<< HEAD
             -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.PROJECT_NAME }}-backend-despachos:latest \
             ./backend/back-despacho-service
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.PROJECT_NAME }}-backend-despachos:latest
+=======
+            -t ${{ steps.login-ecr.outputs.registry }}/${{ env.PROJECT_NAME }}-backend-despachos:latest \
+            ./backend/despacho-service
+          docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.PROJECT_NAME }}-backend-despachos:latest
+>>>>>>> cd23041d9393712689ec0176745ff1e0410915cd
 
       - name: Build y push del backend ventas
         run: |
           docker build --platform linux/amd64 \
+<<<<<<< HEAD
             -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.PROJECT_NAME }}-backend-ventas:latest \
             ./backend/back-venta-service
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.PROJECT_NAME }}-backend-ventas:latest
+=======
+            -t ${{ steps.login-ecr.outputs.registry }}/${{ env.PROJECT_NAME }}-backend-ventas:latest \
+            ./backend/venta-service
+          docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.PROJECT_NAME }}-backend-ventas:latest
+>>>>>>> cd23041d9393712689ec0176745ff1e0410915cd
 
       - name: Build y push del frontend
         run: |
           docker build --platform linux/amd64 \
-            -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.PROJECT_NAME }}-frontend:latest \
+            -t ${{ steps.login-ecr.outputs.registry }}/${{ env.PROJECT_NAME }}-frontend:latest \
             ./frontend
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.PROJECT_NAME }}-frontend:latest
+          docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.PROJECT_NAME }}-frontend:latest
 
-      - name: Forzar nuevo despliegue en ECS
+      - name: Forzar nuevo despliegue en ECS (Ejemplo para servicio Despachos)
         run: |
           aws ecs update-service \
             --cluster ${{ env.PROJECT_NAME }}-cluster \
-            --service ${{ env.SERVICE }} \
+            --service service-despachos \
+            --force-new-deployment
+
+      - name: Forzar nuevo despliegue en ECS (Ejemplo para servicio Ventas)
+        run: |
+          aws ecs update-service \
+            --cluster ${{ env.PROJECT_NAME }}-cluster \
+            --service service-ventas \
+            --force-new-deployment
+
+      - name: Forzar nuevo despliegue en ECS (Ejemplo para servicio Frontend)
+        run: |
+          aws ecs update-service \
+            --cluster ${{ env.PROJECT_NAME }}-cluster \
+            --service service-frontend \
             --force-new-deployment
