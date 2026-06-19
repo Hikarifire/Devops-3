@@ -4,9 +4,11 @@ on:
   pull_request:
     branches:
       - main
+      - develop
   push:
     branches:
       - main
+      - develop
 
 permissions:
   contents: read
@@ -34,8 +36,8 @@ jobs:
       fail-fast: false
       matrix:
         service:
-          - backend/despacho-service
-          - backend/venta-service
+          - backend/back-despacho-service
+          - backend/back-venta-service
 
     steps:
       - name: Checkout del codigo
@@ -68,28 +70,17 @@ jobs:
       - name: Checkout del codigo
         uses: actions/checkout@v4
 
-      - name: Configurar Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
       - name: Configurar pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
-          run_install: false
 
-      - name: Obtener store de pnpm
-        shell: bash
-        run: echo "STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_ENV"
-
-      - name: Cache de pnpm
-        uses: actions/cache@v4
+      - name: Configurar Node.js con Cache Nativa
+        uses: actions/setup-node@v4
         with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('frontend/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
+          node-version: "20"
+          cache: 'pnpm'
+          cache-dependency-path: 'frontend/pnpm-lock.yaml'
 
       - name: Instalar dependencias
         working-directory: frontend
@@ -113,9 +104,9 @@ jobs:
 
       - name: Preparar archivos .env
         run: |
-          cp .env.example .env
-          cp backend/despacho-service/.env.example backend/despacho-service/.env
-          cp backend/venta-service/.env.example backend/venta-service/.env
+          cp .env.example .env || true
+          cp backend/back-despacho-service/.env.example backend/back-despacho-service/.env || true
+          cp backend/back-venta-service/.env.example backend/back-venta-service/.env || true
 
       - name: Validar compose
         env:
@@ -138,7 +129,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: infrastructure
+        working-directory: infra/terraform
 
     steps:
       - name: Checkout del codigo
